@@ -44,6 +44,77 @@ describe('agregarTarea', () => {
   
 });
 
+describe('Pruebas adicionales — Tarea 2', () => {
+  it('debe eliminar un elemento al hacer clic en su botón de eliminar', () => {
+    const lista = crearLista();
+    const tarea = crearTareaElemento('Eliminar tarea');
+    lista.appendChild(tarea);
+
+    const botonEliminar = tarea.querySelector('.btn-eliminar');
+    botonEliminar.click();
+
+    expect(lista.children.length).toBe(0);
+  });
+
+  it('debe alternar la clase completada al disparar el evento change del checkbox', () => {
+    const tarea = crearTareaElemento('Marcar tarea');
+    const checkbox = tarea.querySelector('.tarea-checkbox');
+
+    checkbox.checked = true;
+    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(tarea.classList.contains('completada')).toBe(true);
+  });
+
+  it('debe agregar una tarea con exactamente 200 caracteres y dos palabras', () => {
+    const lista = crearLista();
+    const texto = `${'A'.repeat(97)} ${'B'.repeat(102)}`;
+
+    expect(texto.length).toBe(200);
+
+    const resultado = agregarTarea(texto, lista);
+    expect(resultado.exito).toBe(true);
+    expect(lista.children.length).toBe(1);
+  });
+
+  it('debe eliminar todas las tareas cuando todas están completadas', () => {
+    const lista = crearLista();
+    agregarTarea('Tarea uno', lista);
+    agregarTarea('Tarea dos', lista);
+
+    const items = lista.querySelectorAll('.tarea-item');
+    items.forEach((item) => {
+      const checkbox = item.querySelector('.tarea-checkbox');
+      checkbox.checked = true;
+      checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    const eliminadas = limpiarCompletadas(lista);
+    expect(eliminadas).toBe(2);
+    expect(lista.children.length).toBe(0);
+  });
+
+  it('debe rechazar una tarea de una sola palabra mostrando el mensaje de validación', () => {
+    const lista = crearLista();
+
+    const resultado = agregarTarea('Tarea', lista);
+
+    expect(resultado.exito).toBe(false);
+    expect(resultado.error).toBe('La tarea debe tener al menos 2 palabras.');
+    expect(lista.children.length).toBe(0);
+  });
+
+  it('debe rechazar una tarea con una palabra aunque tenga longitud suficiente', () => {
+    const lista = crearLista();
+
+    const resultado = agregarTarea('Hola', lista);
+
+    expect(resultado.exito).toBe(false);
+    expect(resultado.error).toBe('La tarea debe tener al menos 2 palabras.');
+    expect(lista.children.length).toBe(0);
+  });
+});
+
 describe('eliminarTarea', () => {
   it('debe eliminar el elemento <li> del DOM', () => {
     const lista = crearLista();
